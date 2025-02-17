@@ -8,7 +8,7 @@
 # Modified By: Gehua Ma
 # -----
 ###
-from .neurons import _SpikeTensor, _SpikeTorchConv, NoisyLIF
+from .neurons import NoisyLIF
 import torch
 
 
@@ -300,4 +300,7 @@ class NoisyLeaky(NoisyLIF):
         Assumes hidden states have a batch dimension already."""
         for layer in range(len(cls.instances)):
             if isinstance(cls.instances[layer], NoisyLeaky):
-                cls.instances[layer].mem = _SpikeTensor(init_flag=False)
+                cls.instances[layer].mem = torch.zeros_like(
+                    cls.instances[layer].mem,
+                    device=cls.instances[layer].mem.device,
+                )

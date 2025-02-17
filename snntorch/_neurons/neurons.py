@@ -377,27 +377,6 @@ class NoisyLIF(SpikingNeuron):
             self.register_buffer("beta", beta)
 
     @staticmethod
-    def init_noisyleaky():
-        """
-        Used to initialize mem as an empty SpikeTensor.
-        ``init_flag`` is used as an attribute in the forward pass to convert
-        the hidden states to the same as the input.
-        """
-        mem = _SpikeTensor(init_flag=False)
-
-        return mem
-
-    def mem_reset(self, mem):
-        """Generates detached reset signal if mem > threshold.
-        Returns reset."""
-        mem_shift = mem - self.threshold
-        reset = (
-            self.spike_grad(mem_shift, 0, self._noise_scale).clone().detach()
-        )
-
-        return reset
-
-    @staticmethod
     class Gaussian(torch.autograd.Function):
         r"""
         Gaussian noise. This is the original and default type because the iterative form is derived
@@ -560,46 +539,3 @@ class NoisyLIF(SpikingNeuron):
                 1 / (ctx.a - -ctx.a)
             )
             return grad_input * temp, None, None
-
-
-class _SpikeTensor(torch.Tensor):
-    """Inherits from torch.Tensor with additional attributes.
-    ``init_flag`` is set at the time of initialization.
-    When called in the forward function of any neuron, they are parsed and
-    replaced with a torch.Tensor variable.
-    """
-
-    @staticmethod
-    def __new__(cls, *args, init_flag=False, **kwargs):
-        return super().__new__(cls, *args, **kwargs)
-
-    def __init__(
-        self,
-        *args,
-        init_flag=True,
-    ):
-        # super().__init__() # optional
-        self.init_flag = init_flag
-
-
-def _SpikeTorchConv(*args, input_):
-    """Convert SpikeTensor to torch.Tensor of the same size as ``input_``."""
-
-    states = []
-    # if len(input_.size()) == 0:
-    #     _batch_size = 1  # assume batch_size=1 if 1D input
-    # else:
-    #     _batch_size = input_.size(0)
-    if (
-        len(args) == 1 and type(args) is not tuple
-    ):  # if only one hidden state, make it iterable
-        args = (args,)
-    for arg in args:
-        arg = arg.to("cpu")
-        arg = torch.Tensor(arg)  # wash away the SpikeTensor class
-        arg = torch.zeros_like(input_, requires_grad=True)
-        states.append(arg)
-    if len(states) == 1:  # otherwise, list isn't unpacked
-        return states[0]
-
-    return states
