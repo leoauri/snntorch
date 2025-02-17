@@ -224,7 +224,9 @@ class NoisyLeaky(NoisyLIF):
         self.mem = self.beta.clamp(0, 1) * self.mem + input_
 
         if self.inhibition:
-            spk = self.fire_inhibition(self.mem.size(0), self.mem)  # batch_size
+            spk = self.fire_inhibition(
+                self.mem.size(0), self.mem
+            )  # batch_size
         else:
             spk = self.fire(self.mem)
 

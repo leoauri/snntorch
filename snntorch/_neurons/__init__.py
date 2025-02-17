@@ -13,7 +13,7 @@ __neuron__ = [
     "lapicque",
     "leaky",
     "leakyparallel",
-    "noisyleaky", 
+    "noisyleaky",
     "rleaky",
     "rsynaptic",
     "synaptic",
