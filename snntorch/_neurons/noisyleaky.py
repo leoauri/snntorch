@@ -197,7 +197,7 @@ class NoisyLeaky(NoisyLIF):
         self.mem = torch.zeros_like(self.mem, device=self.mem.device)
         return self.mem
 
-    def init_leaky(self):
+    def init_noisyleaky(self):
         """Deprecated, use :class:`NoisyLeaky.reset_mem` instead"""
         return self.reset_mem()
 
